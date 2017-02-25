@@ -22,11 +22,11 @@ var sanFrancisco = [ '-122.75', '36.8', '-121.75', '37.8' ]
 io.sockets.on('connection', function (socket) {
     var stream = T.stream('statuses/filter', { locations: sanFrancisco })
     stream.on('tweet', function(tweet) {
-	  if (tweet.coordinates) {
-		  if(tweet.coordinates !== null) {
-			  if(tweet.entities.media) {
-				  if(tweet.entities.media !== null) {
-					  socket.emit('info', {"lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1],"pic": data.entities.media.media_url});
+	    if (tweet.coordinates) {
+		    if(tweet.coordinates !== null) {
+			    if(tweet.entities.media) {
+				    if(tweet.entities.media !== null) {
+					    socket.emit('tweet', {"lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1],"pic": data.entities.media.media_url});
 				  }
 			  }
 		  }

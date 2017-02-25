@@ -1,56 +1,36 @@
-/*WHAT I'M FUCKING TRYING TO DO:
-
-	Set up a server via Express
-	Connecting to our MongoDB database
-	Initializing our socket.io connection
-	Creating our Twitter stream connection */
-
-//Require our dependencies
-
-var express = require('express'),
-  exphbs = require('express-handlebars'),
-  http = require('http'),		  //templating language that is AWESOME with express
-  mongoose = require('mongoose'), //mongoose is a MongoDB object modeling library
-  twitter = require('ntwitter'),  //ntwitter is a node.js twitter api library
-  routes = require('./routes'),
-  config = require('./config'),
-  streamHandler = require('./utils/streamHandler');
-
-// Create an express instance and set a port variable
+var http = require('http');
+var express = require('express');
 var app = express();
-var port = process.env.PORT || 8080;
 
-// Set handlebars as the templating engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
+app.use(express.static(__dirname + '/public'));
 
-// Disable etag headers on responses
-app.disable('etag');
+var Twit = require('twit')
 
-// Connect to our mongo database
-mongoose.connect('mongodb://localhost/WHATEVER_THE_FUCK_YOU_WANT');
+var T = new Twit({
+  consumer_key:         'G0Y8G38hohOYfm8AZQkGGAmeq',
+  consumer_secret:      'P5nmxOLsiQvAzQa1GaRMmHCKy6wBibhECKA5AmnWUOiRvfKT56',
+  access_token:         '62069417-l3eK0lU6jWEXNTywmlaTgcddpEeVQHjjN7jmlYzga',
+  access_token_secret:  'jDZ8Y7YQ4R8GBrZtXIlp5EinI74C1b5hVs0oOah4Kqej1',
+  timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
+})
 
-// Create a new ntwitter instance
-var twit = new twitter(config.twitter);
+var server = http.createServer(app);
+server.listen(8080);
 
-// Index Route
-app.get('/', routes.index);
+var sanFrancisco = [ '-122.75', '36.8', '-121.75', '37.8' ]
 
-// Page Route
-app.get('/page/:page/:skip', routes.page);
+var stream = T.stream('statuses/filter', { locations: sanFrancisco })
 
-// Set /public as our static content dir
-app.use("/", express.static(__dirname + "/public/"));
-
-// Fire it up (start our server)
-var server = http.createServer(app).listen(port, function() {
-  console.log('Express server listening on port ' + port);
-});
-
-// Initialize socket.io
-var io = require('socket.io').listen(server);
-
-// Set a stream listener for tweets matching tracking keywords
-twit.stream('statuses/filter',{ track: 'whateveryouwant, #WHATEVER_THE_FUCK_YOU_WANT'}, function(stream){
-  streamHandler(stream,io);
+io.sockets.on('connection', function (socket) {
+  stream.on('tweet', function(tweet) {
+	  if (tweet.coordinates) {
+		  if(tweet.coordinates !== null) {
+			  if(tweet.entities.media) {
+				  if(tweet.entities.media !== null) {
+					  socket.emit('info', {"lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1],"pic": data.entities.media.media_url});
+				  }
+			  }
+		  }
+	  }
+  });
 });

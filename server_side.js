@@ -88,18 +88,19 @@ app.use(function(err, req, res, next) {
 io.on('connection', function(socket) {
     socket.emit('server socket open', { initial: 'socket opened!' });
 
-    stream.on('tweet', function(tweet) {
-        if (isQualityTweet(tweet)) {
-            console.dir(tweet);
-            socket.emit('tweet', tweet);
-        }
+    socket.on('stream', function () {
+        stream.on('tweet', function(tweet) {
+            if (isQualityTweet(tweet)) {
+                console.dir(tweet);
+                socket.emit('tweet', tweet);
+            }
+        });
+
+        stream.on('disconnect', function(){
+            socket.emit('disconnect'); 
+        }); 
+
     });
-
-    stream.on('disconnect', function(){
-        socket.emit('disconnect'); 
-    }); 
-
-    
 }); 
 
 server.listen(config.port, function(){

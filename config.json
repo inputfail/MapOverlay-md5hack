@@ -1,0 +1,25 @@
+{
+    "twitter": {
+        "oauth": {
+            "consumer_key": "f4iesdcjhsdkcRG87k8j",
+            "consumer_secret": "FzTKsdc9o82389whcdwvm9kekBavFjhkDsEYbTGH",
+            "access_token": "2476678908-RZxnfhEEce9k6ihyasccadsqeLuS4fgwqr9",
+            "access_token_secret": "tTW6SN9fzuPw8wHiKlB3I51vVFUK6jqcX8k8FLOYwl2HJ"
+        },
+        "tracking_terms": ["blah", "dang", "man", "samir", "ali", "homie", "yo"]
+    },
+    "google": {
+        "mapsApiKey": "ZPzaSyDi8vcY_V3djywrmcVzzEtkaTsdcjkh47Pk" 
+    }, 
+    "map": {
+        "body_class": "", 
+        "start_lat": -34.397, 
+        "start_long": 150.644, 
+        "start_zoom": 12
+    },
+    "port": 3000, 
+    "app_name": "fuck_shocker.io",
+    "app_title": "fuck_shocker.io", 
+    "app_background_color": "#000",
+    "contact_email": "bullshit@gmail.com", 
+    "about_text": "This is a cool map bruh."

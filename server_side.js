@@ -35,7 +35,7 @@ var stream = Twitter.stream('statuses/filter', { track: config.twitter.tracking_
 
 //Only use tweets that have geo data associated with them, so that we can draw them on the map
 function isQualityTweet(tweet) {
-    if (!tweet.coordinates && !tweet.placeName || !tweet.place) {
+    if (!tweet.coordinates && !tweet.place) {
         return false; 
     } else {
         return true;

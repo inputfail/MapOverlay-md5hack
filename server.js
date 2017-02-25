@@ -19,10 +19,9 @@ server.listen(8080);
 
 var sanFrancisco = [ '-122.75', '36.8', '-121.75', '37.8' ]
 
-var stream = T.stream('statuses/filter', { locations: sanFrancisco })
-
 io.sockets.on('connection', function (socket) {
-  stream.on('tweet', function(tweet) {
+    var stream = T.stream('statuses/filter', { locations: sanFrancisco })
+    stream.on('tweet', function(tweet) {
 	  if (tweet.coordinates) {
 		  if(tweet.coordinates !== null) {
 			  if(tweet.entities.media) {

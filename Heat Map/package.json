@@ -1,0 +1,15 @@
+{
+	"name": "twitter-heat-map-streaming",
+	"version": "0.0.1",
+	"author": "augustojulio",
+	"private": true,
+	"scripts": {
+		"start": "node app"
+	},
+
+	"dependencies": {
+		"express": "*",
+		"twitter": "*",
+		"socket.io": "*"
+	}
+}

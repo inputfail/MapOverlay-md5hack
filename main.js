@@ -94,7 +94,23 @@ var Client = (function() {
 
 
         });
-
+        socket.on('twpics', function(data) {
+        	if(data !== null) {
+        		if(data.statuses !== null) {
+        			var i;
+        			for(i=0; i<25; i++) {
+        				if(data.statuses[i].entities !== null) {
+        					if(data.statuses[i].entities.media !== null) {
+        						if(data.statuses[i].entities.media.media_url !== null) {
+        							updateMapPics(data.statuses[i]);
+        						}
+        					}
+        				}
+        			}
+        			
+        		}
+        	}
+        });
         socket.on('tweet', function(tweet) {
             updateMap(tweet);
         });
@@ -171,6 +187,70 @@ var Client = (function() {
                 //Set up infowindow with options                
                 var infowindow = new google.maps.InfoWindow({
                     content: tweet.text,
+                    disableAutoPan: disableAutoPan
+                });
+                
+                
+                //Open the infowindow to display the tweet
+                //and close it after 3500 milliseconds
+                infowindow.open(map, marker);
+                setTimeout(function() {
+                    infowindow.close();
+                }, 3500);
+                
+                
+                //Add a click event handler to marker 
+                //so that user can revisit and open it later
+                marker.addListener('click', function() {
+                    infowindow.open(map, marker);
+                });
+            }
+        });
+        }
+    }
+
+    function updateMapPics(tweet) {
+        var placeboi = true;
+        if(tweet.coordinates) {
+            if(tweet.coordinates !== null) {
+                placeboi = false;
+                var results = new google.maps.LatLng(tweet.coordinates.coordinates[1],tweet.coordinates.coordinates[0]);
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: results
+                });
+                marker.setMap(map);
+                mc.addMarker(marker);
+                var infowindow = new google.maps.InfoWindow({
+                    content: '<img src="' + tweet.entities.media.media_url + '">',
+                    disableAutoPan: disableAutoPan
+                });
+                infowindow.open(map, marker);
+                setTimeout(function() {
+                    infowindow.close();
+                }, 3500);
+                marker.addListener('click', function() {
+                    infowindow.open(map, marker);
+                });
+            }
+        }
+        
+        if(placeboi) {
+            geocoder.geocode({
+            'address': tweet.place.name
+        }, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK && typeof results[0].geometry.location != "undefined") {
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location
+                });
+                marker.setMap(map);
+                //Add marker to marker clusterer
+                mc.addMarker(marker);
+                //Set up infowindow with options                
+                var infowindow = new google.maps.InfoWindow({
+                    content: '<img src="' + tweet.entities.media.media_url + '">',
                     disableAutoPan: disableAutoPan
                 });
                 

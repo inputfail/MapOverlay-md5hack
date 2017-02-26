@@ -104,6 +104,9 @@ io.on('connection', function(socket) {
         var leftLng = Number.parseFloat(data.lng) - Number.parseFloat(data.rad);
         var rightLat = Number.parseFloat(data.lat) + Number.parseFloat(data.rad);
         var rightLng = Number.parseFloat(data.lng) + Number.parseFloat(data.rad);
+        latitude = Number.parseFloat(data.lat);
+        longitude = Number.parseFloat(data.lng);
+        radius = Number.parseFloat(data.rad);
         loc = [String(leftLng), String(leftLat), String(rightLng), String(rightLat)];
     });
 
@@ -112,14 +115,42 @@ io.on('connection', function(socket) {
 
         if((loc !== null) && (trackTerms !== null)) {
             streamPar = {track: trackTerms, locations: loc};
-            console.log('both'); 
+            console.log('both');
+
+            gcode = String(latitude)+','+String(longitude)+','+String(radius);
+            var dateObj = new Date();
+            dateObj.setDate(dateObj.getDate()-1);
+            var dateS = dateObj.toISOString + '';
+            var dateSO = dateS.split("T");
+            Twitter.get('search/tweets', { q: trackTerms +' filter:media -RT since:' + dateSO[0], geocode: gcode, count: 25 }, function(err, data, response) {
+                socket.emit('twpics', data);
+            })
         }else if(trackTerms !== null){
             streamPar = {track: trackTerms};
             console.log('words');
+            
+            var dateObj = new Date();
+            dateObj.setDate(dateObj.getDate()-1);i
+            var dateS = dateObj.toISOString + '';
+            var dateSO = dateS.split("T");
+            Twitter.get('search/tweets', { q: trackTerms +' filter:media -RT since:' + dateSO[0], count: 25 }, function(err, data, response) {
+                socket.emit('twpics', data);
+            })
         }else if(loc !== null) {
             streamPar = {locations: loc};
             console.log('places');
+
+            gcode = String(latitude)+','+String(longitude)+','+String(radius);
+            var dateObj = new Date();
+            dateObj.setDate(dateObj.getDate()-1);
+            var dateS = dateObj.toISOString + '';
+            var dateSO = dateS.split("T");
+            Twitter.get('search/tweets', { q: 'filter:media -RT since:' + dateSO[0], geocode: gcode, count: 25 }, function(err, data, response) {
+                socket.emit('twpics', data);
+            })
         }
+
+        
 
         if(streamPar !== null) {
             stream = Twitter.stream('statuses/filter', streamPar);

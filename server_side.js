@@ -31,7 +31,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 //Connect to Twitter to create a stream of Twitter status updates around your configured topics
-var stream = Twitter.stream('statuses/filter', { track: config.twitter.tracking_terms });
+var trackTerms = null;
+var streamPar = null;
+var loc = null;
+var radius;
+var latitude;
+var longitude;
 
 //Only use tweets that have geo data associated with them, so that we can draw them on the map
 function isQualityTweet(tweet) {
@@ -85,13 +90,47 @@ app.use(function(err, req, res, next) {
 
 //Listen for websocket connections from the client
 //When we establish a connection with a new client, send them tweets from the stream
+var univers = [ '-180', '-90', '180', '90' ]
+
 io.on('connection', function(socket) {
     socket.emit('server socket open', { initial: 'socket opened!' });
 
+    socket.on('keyword', function (data) {
+        trackTerms = String(data);
+    });
+
+    socket.on('input', function (data) {
+        var leftLat = Number.parseFloat(data.lat) - Number.parseFloat(data.rad);
+        var leftLng = Number.parseFloat(data.lng) - Number.parseFloat(data.rad);
+        var rightLat = Number.parseFloat(data.lat) + Number.parseFloat(data.rad);
+        var rightLng = Number.parseFloat(data.lng) + Number.parseFloat(data.rad);
+        loc = [String(leftLng), String(leftLat), String(rightLng), String(rightLat)];
+    });
+
     socket.on('stream', function () {
+        var stream;
+
+        if((loc !== null) && (trackTerms !== null)) {
+            streamPar = {track: trackTerms, locations: loc};
+            console.log('both'); 
+        }else if(trackTerms !== null){
+            streamPar = {track: trackTerms};
+            console.log('words');
+        }else if(loc !== null) {
+            streamPar = {locations: loc};
+            console.log('places');
+        }
+
+        if(streamPar !== null) {
+            stream = Twitter.stream('statuses/filter', streamPar);
+            console.log('par');
+        }else {
+            stream = Twitter.stream('statuses/filter', {locations: univers});
+            console.log('total');
+        }
         stream.on('tweet', function(tweet) {
             if (isQualityTweet(tweet)) {
-                console.dir(tweet);
+                //console.dir(tweet);
                 socket.emit('tweet', tweet);
             }
         });

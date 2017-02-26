@@ -9,12 +9,22 @@ var Client = (function() {
         mc, //markerclusterer, if you don't know what it is, check out https://github.com/googlemaps/js-marker-clusterer. It makes shit look pretty.
         markers = [];
 
+
+
     function init(mapElement, socket, controls, startLat, startLong, startZoom) {
+        
+        var sLat = startLat;
+        var sLong = startLong;
+        var sRad;
+        var sKey;
+        	
+        
+
         //Set up controls, you idiot.
         ctrl = controls;
         
 		//Draw map, duh.
-        map = new google.maps.Map(mapElement, { center: { lat: startLat, lng: startLong }, zoom: startZoom });
+        map = new google.maps.Map(mapElement, { center: { lat: sLat, lng: sLong }, zoom: startZoom });
         
 		//Initialize geocoder because we care about the information we parse.
         geocoder = new google.maps.Geocoder();
@@ -27,8 +37,64 @@ var Client = (function() {
         };
         mc = new MarkerClusterer(map, markers, mcOptions)
         socket.on('server socket open', function() {
-            socket.emit('stream');
+        	vex.dialog.prompt({
+        	message: 'Please enter keywords you wish to filter by.',
+        	callback: function (data) {
+        		if (!data){
+        			console.log("cancelled")
+        		}
+        		else {
+        			socket.emit('keyword', data.Keywords);
+        		}
+        		socket.emit('stream');
+        	}
+        })
+
+        vex.dialog.open({
+        	message: 'Please include values for your Latitude, Longitude, and Radius.',
+        	input: [
+        '<style>',
+            '.vex-custom-field-wrapper {',
+                'margin: 1em 0;',
+            '}',
+            '.vex-custom-field-wrapper > label {',
+                'display: inline-block;',
+                'margin-bottom: .2em;',
+            '}',
+        '</style>',
+        '<div class="vex-custom-field-wrapper">',
+            '<label for="Latitude">Latitude</label>',
+            '<div class="vex-custom-input-wrapper">',
+                '<input name="Latitude" value="" />',
+            '</div>',
+        '</div>',
+        '<div class="vex-custom-field-wrapper">',
+            '<label for="Longitude">Longitude</label>',
+            '<div class="vex-custom-input-wrapper">',
+                '<input name="Longitude" value="" />',
+            '</div>',
+        '</div>',
+        '<div class="vex-custom-field-wrapper">',
+            '<label for="Radius">Radius</label>',
+            '<div class="vex-custom-input-wrapper">',
+                '<input name="Radius" value="" />',
+            '</div>',
+        '</div>'
+    ].join(''),
+        	callback: function (data) {
+        		if (!data) {
+        			console.log('cancelled')
+        		}else {
+        			socket.emit('input', {rad: data.Radius, lat: data.Latitude, lng: data.Longitude});
+        			sLat = data.Latitude;
+        			sLong = data.Longitude;
+        		}
+        	}
+        })
+
+
         });
+
         socket.on('tweet', function(tweet) {
             updateMap(tweet);
         });

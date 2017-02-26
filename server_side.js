@@ -4,7 +4,7 @@ var
     , config = require('./config.json')				//setting it up blah blah
     , hbs = require('express-hbs')
 	
-	/* WHY THE FUCK I'M USING HANDLEBARS
+	/* WHY handlebars
 	Nowadays the majority of the Web consists of dynamic applications in which the data keep changing frequently.
 	As a result, there is a continuous need to update the data rendered on the browser. 
 	This is where JavaScript templating engines come to the rescue and become so useful. 

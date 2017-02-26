@@ -6,11 +6,11 @@ var Client = (function() {
         disableAutoPan = false,
         geocoder, 
         socket, 
-        mc, //markerclusterer, if you don't know what it is, check out https://github.com/googlemaps/js-marker-clusterer. It makes shit look pretty.
+        mc, //markerclusterer, if you don't know what it is, check out https://github.com/googlemaps/js-marker-clusterer. It makes things look pretty.
         markers = [];
 
     function init(mapElement, socket, controls, startLat, startLong, startZoom) {
-        //Set up controls, you idiot.
+        //Set up controls.
         ctrl = controls;
         
 		//Draw map, duh.

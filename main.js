@@ -3,12 +3,13 @@ var Client = (function() {
     var
         map, 
         ctrl, 
-        disableAutoPan = false,
+        disableAutoPan = true,
         geocoder, 
         socket, 
         mc, //markerclusterer, if you don't know what it is, check out https://github.com/googlemaps/js-marker-clusterer. It makes things look pretty.
-        markers = [];
-
+        markers = [],
+        heatmap,
+        liveTweets;
 
 
     function init(mapElement, socket, controls, startLat, startLong, startZoom) {
@@ -17,8 +18,6 @@ var Client = (function() {
         var sLong = startLong;
         var sRad;
         var sKey;
-        	
-        
 
         //Set up controls.
         ctrl = controls;
@@ -36,8 +35,27 @@ var Client = (function() {
             imagePath: 'images/m'
         };
         mc = new MarkerClusterer(map, markers, mcOptions)
+        
+        liveTweets = new google.maps.MVCArray();
+        heatmap = new google.maps.visualization.HeatmapLayer({
+            data: liveTweets,
+            radius: 25
+        });
+
+        
         socket.on('server socket open', function() {
-        	vex.dialog.prompt({
+        	
+            vex.dialog.confirm({
+                message: 'Would you like to enable the heat map layer?',
+                callback: function (value) {
+                    if(value) {
+                        heatmap.setMap(map);
+                    }
+                    socket.emit('stream');
+                }
+            })
+
+            vex.dialog.prompt({
         	message: 'Please enter keywords you wish to filter by.',
         	callback: function (data) {
         		if (!data){
@@ -46,9 +64,9 @@ var Client = (function() {
         		else {
         			socket.emit('keyword', data.Keywords);
         		}
-        		socket.emit('stream');
         	}
         })
+        
 
         vex.dialog.open({
         	message: 'Please include values for your Latitude, Longitude, and Radius.',
@@ -92,28 +110,13 @@ var Client = (function() {
         	}
         })
 
-
+        
         });
-        socket.on('twpics', function(data) {
-        	if(data !== null) {
-        		if(data.statuses !== null) {
-        			var i;
-        			for(i=0; i<25; i++) {
-        				if(data.statuses[i].entities !== null) {
-        					if(data.statuses[i].entities.media !== null) {
-        						if(data.statuses[i].entities.media.media_url !== null) {
-        							updateMapPics(data.statuses[i]);
-        						}
-        					}
-        				}
-        			}
-        			
-        		}
-        	}
-        });
+        
         socket.on('tweet', function(tweet) {
             updateMap(tweet);
         });
+        
         socket.on('disconnect', function() {
             showDisconnectedStatus();
         });
@@ -121,6 +124,8 @@ var Client = (function() {
         //Wire up nav controls handlers
         $(ctrl.jumpToggle).on('click', toggleJumpStatus);
     }
+
+
 
     function showDisconnectedStatus() {
         $(ctrl.statusConnected).addClass('hidden').hide();
@@ -161,13 +166,16 @@ var Client = (function() {
                     content: tweet.text,
                     disableAutoPan: disableAutoPan
                 });
+                /*
                 infowindow.open(map, marker);
                 setTimeout(function() {
                     infowindow.close();
                 }, 3500);
+                */
                 marker.addListener('click', function() {
                     infowindow.open(map, marker);
                 });
+                liveTweets.push(results);
             }
         }
         
@@ -193,81 +201,19 @@ var Client = (function() {
                 
                 //Open the infowindow to display the tweet
                 //and close it after 3500 milliseconds
+                /*
                 infowindow.open(map, marker);
                 setTimeout(function() {
                     infowindow.close();
                 }, 3500);
-                
+                */
                 
                 //Add a click event handler to marker 
                 //so that user can revisit and open it later
                 marker.addListener('click', function() {
                     infowindow.open(map, marker);
                 });
-            }
-        });
-        }
-    }
-
-    function updateMapPics(tweet) {
-        var placeboi = true;
-        if(tweet.coordinates) {
-            if(tweet.coordinates !== null) {
-                placeboi = false;
-                var results = new google.maps.LatLng(tweet.coordinates.coordinates[1],tweet.coordinates.coordinates[0]);
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: results
-                });
-                marker.setMap(map);
-                mc.addMarker(marker);
-                var infowindow = new google.maps.InfoWindow({
-                    content: '<img src="' + tweet.entities.media.media_url + '">',
-                    disableAutoPan: disableAutoPan
-                });
-                infowindow.open(map, marker);
-                setTimeout(function() {
-                    infowindow.close();
-                }, 3500);
-                marker.addListener('click', function() {
-                    infowindow.open(map, marker);
-                });
-            }
-        }
-        
-        if(placeboi) {
-            geocoder.geocode({
-            'address': tweet.place.name
-        }, function(results, status) {
-            if (status === google.maps.GeocoderStatus.OK && typeof results[0].geometry.location != "undefined") {
-
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: results[0].geometry.location
-                });
-                marker.setMap(map);
-                //Add marker to marker clusterer
-                mc.addMarker(marker);
-                //Set up infowindow with options                
-                var infowindow = new google.maps.InfoWindow({
-                    content: '<img src="' + tweet.entities.media.media_url + '">',
-                    disableAutoPan: disableAutoPan
-                });
-                
-                
-                //Open the infowindow to display the tweet
-                //and close it after 3500 milliseconds
-                infowindow.open(map, marker);
-                setTimeout(function() {
-                    infowindow.close();
-                }, 3500);
-                
-                
-                //Add a click event handler to marker 
-                //so that user can revisit and open it later
-                marker.addListener('click', function() {
-                    infowindow.open(map, marker);
-                });
+                liveTweets.push(results);
             }
         });
         }

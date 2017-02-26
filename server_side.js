@@ -116,38 +116,12 @@ io.on('connection', function(socket) {
         if((loc !== null) && (trackTerms !== null)) {
             streamPar = {track: trackTerms, locations: loc};
             console.log('both');
-
-            gcode = String(latitude)+','+String(longitude)+','+String(radius);
-            var dateObj = new Date();
-            dateObj.setDate(dateObj.getDate()-1);
-            var dateS = dateObj.toISOString + '';
-            var dateSO = dateS.split("T");
-            Twitter.get('search/tweets', { q: trackTerms +' filter:media -RT since:' + dateSO[0], geocode: gcode, count: 25 }, function(err, data, response) {
-                socket.emit('twpics', data);
-            })
         }else if(trackTerms !== null){
             streamPar = {track: trackTerms};
             console.log('words');
-            
-            var dateObj = new Date();
-            dateObj.setDate(dateObj.getDate()-1);i
-            var dateS = dateObj.toISOString + '';
-            var dateSO = dateS.split("T");
-            Twitter.get('search/tweets', { q: trackTerms +' filter:media -RT since:' + dateSO[0], count: 25 }, function(err, data, response) {
-                socket.emit('twpics', data);
-            })
         }else if(loc !== null) {
             streamPar = {locations: loc};
             console.log('places');
-
-            gcode = String(latitude)+','+String(longitude)+','+String(radius);
-            var dateObj = new Date();
-            dateObj.setDate(dateObj.getDate()-1);
-            var dateS = dateObj.toISOString + '';
-            var dateSO = dateS.split("T");
-            Twitter.get('search/tweets', { q: 'filter:media -RT since:' + dateSO[0], geocode: gcode, count: 25 }, function(err, data, response) {
-                socket.emit('twpics', data);
-            })
         }
 
         
@@ -156,6 +130,7 @@ io.on('connection', function(socket) {
             stream = Twitter.stream('statuses/filter', streamPar);
             console.log('par');
         }else {
+
             stream = Twitter.stream('statuses/filter', {locations: univers});
             console.log('total');
         }

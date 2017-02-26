@@ -111,12 +111,12 @@ var Client = (function() {
                 
                 //Open the infowindow to display the tweet
                 //and close it after 3500 milliseconds
-                infowindow.open(map, marker);
+              /*  infowindow.open(map, marker);
                 setTimeout(function() {
                     infowindow.close();
                 }, 3500);
                 
-                
+              */  
                 //Add a click event handler to marker 
                 //so that user can revisit and open it later
                 marker.addListener('click', function() {

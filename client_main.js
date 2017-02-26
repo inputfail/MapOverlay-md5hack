@@ -3,7 +3,7 @@ var Client = (function() {
     var
         map, 
         ctrl, 
-        disableAutoPan = false,
+        disableAutoPan = true,
         geocoder, 
         socket, 
         mc, //markerclusterer, if you don't know what it is, check out https://github.com/googlemaps/js-marker-clusterer. It makes things look pretty.

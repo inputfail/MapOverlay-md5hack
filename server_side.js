@@ -37,11 +37,22 @@ var loc = null;
 var radius;
 var latitude;
 var longitude;
+var stream = null;
 
 //Only use tweets that have geo data associated with them, so that we can draw them on the map
 function isQualityTweet(tweet) {
     if (!tweet.coordinates && !tweet.place) {
         return false; 
+    } else if((trackTerms !== null) && (loc !== null)){
+        console.log('check text');
+        var terms = trackTerms.split(",");
+        var i;
+        for(i=0; i<terms.length; i++) {
+            if(tweet.text.indexOf(terms[i]) !== -1) {
+                return true;
+            }
+        }
+        return false;
     } else {
         return true;
     }
@@ -96,25 +107,30 @@ io.on('connection', function(socket) {
     socket.emit('server socket open', { initial: 'socket opened!' });
 
     socket.on('keyword', function (data) {
+        console.dir(data);
         trackTerms = String(data);
     });
 
     socket.on('input', function (data) {
-        var leftLat = Number.parseFloat(data.lat) - Number.parseFloat(data.rad);
-        var leftLng = Number.parseFloat(data.lng) - Number.parseFloat(data.rad);
-        var rightLat = Number.parseFloat(data.lat) + Number.parseFloat(data.rad);
-        var rightLng = Number.parseFloat(data.lng) + Number.parseFloat(data.rad);
+        radius = Number.parseFloat(data.rad);
         latitude = Number.parseFloat(data.lat);
         longitude = Number.parseFloat(data.lng);
-        radius = Number.parseFloat(data.rad);
+
+        var radF = radius/69;
+        var leftLat = Number.parseFloat(data.lat) - radF;
+        var leftLng = Number.parseFloat(data.lng) - radF;
+        var rightLat = Number.parseFloat(data.lat) + radF;
+        var rightLng = Number.parseFloat(data.lng) + radF;
         loc = [String(leftLng), String(leftLat), String(rightLng), String(rightLat)];
     });
 
     socket.on('stream', function () {
-        var stream;
 
+        if(stream !== null) {
+            socket.emit('busy');
+        }
         if((loc !== null) && (trackTerms !== null)) {
-            streamPar = {track: trackTerms, locations: loc};
+            streamPar = {locations: loc};
             console.log('both');
         }else if(trackTerms !== null){
             streamPar = {track: trackTerms};
@@ -125,12 +141,11 @@ io.on('connection', function(socket) {
         }
 
         
-
         if(streamPar !== null) {
             stream = Twitter.stream('statuses/filter', streamPar);
             console.log('par');
+            console.dir(streamPar);
         }else {
-
             stream = Twitter.stream('statuses/filter', {locations: univers});
             console.log('total');
         }
@@ -145,6 +160,14 @@ io.on('connection', function(socket) {
             socket.emit('disconnect'); 
         }); 
 
+    });
+
+    socket.on('disconnect', function() {
+        if(stream !== null) {
+            stream.stop()
+        }
+        stream = null;
+        console.log('client disconnected');
     });
 }); 
 

@@ -62,7 +62,7 @@ var Client = (function() {
         			console.log("cancelled")
         		}
         		else {
-        			socket.emit('keyword', data.Keywords);
+        			socket.emit('keyword', data);
         		}
         	}
         })
@@ -115,6 +115,11 @@ var Client = (function() {
         
         socket.on('tweet', function(tweet) {
             updateMap(tweet);
+        });
+
+        socket.on('busy', function() {
+            vex.dialog.alert('We are sorry, the server is too busy right now')
+            socket.disconnect();
         });
         
         socket.on('disconnect', function() {

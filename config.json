@@ -1,26 +1,26 @@
 {
-    "twitter": {
-        "oauth": {
-            "consumer_key": "G0Y8G38hohOYfm8AZQkGGAmeq",
-            "consumer_secret": "P5nmxOLsiQvAzQa1GaRMmHCKy6wBibhECKA5AmnWUOiRvfKT56",
-            "access_token": "62069417-l3eK0lU6jWEXNTywmlaTgcddpEeVQHjjN7jmlYzga",
-            "access_token_secret": "jDZ8Y7YQ4R8GBrZtXIlp5EinI74C1b5hVs0oOah4Kqej1"
-        },
-        "tracking_terms": ["blah", "dang", "man", "samir", "ali", "homie", "yo"]
-    },
-    "google": {
-        "mapsApiKey": "AIzaSyDCle0QXjHft4-bYxVQpK8w9t1JJqgiXkE" 
-    }, 
-    "map": {
-        "body_class": "", 
-        "start_lat": -34.397, 
-        "start_long": 150.644, 
-        "start_zoom": 12
-    },
-    "port": 8080, 
-    "app_name": "Map Overlay Project",
-    "app_title": "Map Overlay Project", 
-    "app_background_color": "#000",
-    "contact_email": "srikarnalluri@utexas.edu", 
-    "about_text": "This is a cool map bruh."
+	"twitter": {
+		"oauth": {
+			"consumer_key": "f4iesdcjhsdkcRG87k8j",
+			"consumer_secret": "FzTKsdc9o82389whcdwvm9kekBavFjhkDsEYbTGH",
+			"access_token": "2476678908-RZxnfhEEce9k6ihyasccadsqeLuS4fgwqr9",
+			"access_token_secret": "tTW6SN9fzuPw8wHiKlB3I51vVFUK6jqcX8k8FLOYwl2HJ"
+		},
+		"tracking_terms": ["Austin", "UT", "stab", "emergency", "alert", "threat", "wounded"]
+	},
+	"google": {
+		"mapsApiKey": "ZPzaSyDi8vcY_V3djywrmcVzzEtkaTsdcjkh47Pk" 
+	}, 
+	"map": {
+		"body_class": "", 
+		"start_lat": -34.397, 
+		"start_long": 150.644, 
+		"start_zoom": 12
+	},
+	"port": 3000, 
+	"app_name": "Realtime Emergency Map",
+	"app_title": "Realtime Emergency Map", 
+	"app_background_color": "#000",
+	"contact_email": "ali.maredia@utexas.edu", 
+	"about_text": "For Ismaili students."
 }
